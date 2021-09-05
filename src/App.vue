@@ -25,6 +25,35 @@ export default {
       return jokesArray.filter((jokeNL) => jokeNL.id === joke.id)[0];
     },
 
+    saveLikedJokes() {
+      let newLikedJokes = this.jokesList.filter((joke) => joke.liked); //Получаем лайкнутые шутки
+      let prevLikedJokes = localStorageUtil.get("likedJokes"); //Получаем уже существующие лайкнутые шутки из LocalStorage
+      if (prevLikedJokes) {
+        //Проверяем на существование данных
+        if (!prevLikedJokes.length) return;
+        //Проверяем наличие данных
+        let likedJokes = prevLikedJokes.filter((joke) => {
+          // Обновляем список шуток. Отфильтровываем дублирующие шутки с которых убрали лайк
+          const repeatedJoke = this.jokeComparison(newLikedJokes, joke);
+          if (!repeatedJoke) return true;
+          if (repeatedJoke.liked) {
+            return true;
+          } else {
+            return false;
+          }
+        });
+        newLikedJokes.map((joke) => {
+          //Добавляем новые лайкнутые шутки в массив с предыдущими
+          const repeatedJoke = this.jokeComparison(prevLikedJokes, joke);
+          if (repeatedJoke) return; //повторяющие пропускаем
+          likedJokes.unshift(joke);
+        });
+        localStorageUtil.set("likedJokes", likedJokes);
+      } else if (newLikedJokes.length) {
+        localStorageUtil.set("likedJokes", newLikedJokes);
+      }
+    },
+
     getLikedJokes() {
       const likedJokes = localStorageUtil.get("likedJokes"); //Получаем лайкнутые шутки
       if (!likedJokes || !likedJokes.length) return;
