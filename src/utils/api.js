@@ -11,10 +11,6 @@ class Api {
       console.error(error);
     }
   }
-
-  async post(/*url*/) {
-    //
-  }
 }
 
 export default new Api();
