@@ -28,25 +28,18 @@ export default {
     saveLikedJokes() {
       let newLikedJokes = this.jokesList.filter((joke) => joke.liked); //Получаем лайкнутые шутки
       let prevLikedJokes = localStorageUtil.get("likedJokes"); //Получаем уже существующие лайкнутые шутки из LocalStorage
-      if (prevLikedJokes) {
-        //Проверяем на существование данных
-        if (!prevLikedJokes.length) return;
-        //Проверяем наличие данных
-        let likedJokes = prevLikedJokes.filter((joke) => {
-          // Обновляем список шуток. Отфильтровываем дублирующие шутки с которых убрали лайк
-          const repeatedJoke = this.jokeComparison(newLikedJokes, joke);
+
+      if (prevLikedJokes?.length) {//Проверяем наличие данных
+        let likedJokes = prevLikedJokes.filter((joke) => { // Обновляем список шуток. Отфильтровываем дублирующие шутки с которых убрали лайк
+          const repeatedJoke = this.jokeComparison(this.jokesList, joke);
+
           if (!repeatedJoke) return true;
-          if (repeatedJoke.liked) {
-            return true;
-          } else {
-            return false;
-          }
+          repeatedJoke.liked ? true : false;
         });
         newLikedJokes.map((joke) => {
           //Добавляем новые лайкнутые шутки в массив с предыдущими
           const repeatedJoke = this.jokeComparison(prevLikedJokes, joke);
-          if (repeatedJoke) return; //повторяющие пропускаем
-          likedJokes.unshift(joke);
+          if (!repeatedJoke) likedJokes.unshift(joke);
         });
         localStorageUtil.set("likedJokes", likedJokes);
       } else if (newLikedJokes.length) {
@@ -56,9 +49,9 @@ export default {
 
     getLikedJokes() {
       const likedJokes = localStorageUtil.get("likedJokes"); //Получаем лайкнутые шутки
+
       if (!likedJokes || !likedJokes.length) return;
-      this.jokesList.map((joke) => {
-        //Если в пришедших есть дубликат шутки - добавляем свойство Liked
+      this.jokesList.map((joke) => { //Если в пришедших есть дубликат шутки - добавляем свойство Liked
         const repeatedJoke = this.jokeComparison(likedJokes, joke);
         if (repeatedJoke) this.$set(joke, "liked", true);
       });
