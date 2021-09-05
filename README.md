@@ -1,4 +1,4 @@
-# jokes-project
+# Jokes_Project
 
 ## Project setup
 ```
