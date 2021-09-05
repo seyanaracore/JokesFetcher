@@ -7,7 +7,7 @@
 <script>
 import Jokes from "./components/Jokes.vue";
 import getJokes from "./api/getJokes.js";
-import localStorageUtil from "./utils/localStorage.js";
+// import localStorageUtil from "./utils/localStorage.js";
 
 export default {
   name: "App",
@@ -18,6 +18,20 @@ export default {
     return {
       jokesList: [],
     };
+  },
+
+  methods: {
+    async getJokes() {
+      await getJokes().then((result) => {
+        this.jokesList = result.jokes;
+        this.getLikedJokes();
+      });
+    },
+  },
+
+  mounted() {
+    window.addEventListener("beforeunload", this.saveLikedJokes);
+    this.getJokes();
   },
 };
 </script>
