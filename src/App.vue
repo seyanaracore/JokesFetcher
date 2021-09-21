@@ -22,15 +22,17 @@ export default {
 
   methods: {
     jokeComparison(jokesArray, joke) {
-      return jokesArray.filter((jokeNL) => jokeNL.id === joke.id)[0];
+      return jokesArray.find((jokeNL) => jokeNL.id === joke.id);
     },
 
     saveLikedJokes() {
       let newLikedJokes = this.jokesList.filter((joke) => joke.liked); //Получаем лайкнутые шутки
       let prevLikedJokes = localStorageUtil.get("likedJokes"); //Получаем уже существующие лайкнутые шутки из LocalStorage
 
-      if (prevLikedJokes?.length) {//Проверяем наличие данных
-        let likedJokes = prevLikedJokes.filter((joke) => { // Обновляем список шуток. Отфильтровываем дублирующие шутки с которых убрали лайк
+      if (prevLikedJokes?.length) {
+        //Проверяем наличие данных
+        let likedJokes = prevLikedJokes.filter((joke) => {
+          // Обновляем список шуток. Отфильтровываем дублирующие шутки с которых убрали лайк
           const repeatedJoke = this.jokeComparison(this.jokesList, joke);
 
           if (!repeatedJoke) return true;
@@ -51,23 +53,23 @@ export default {
       const likedJokes = localStorageUtil.get("likedJokes"); //Получаем лайкнутые шутки
 
       if (!likedJokes || !likedJokes.length) return;
-      this.jokesList.map((joke) => { //Если в пришедших есть дубликат шутки - добавляем свойство Liked
+      this.jokesList.map((joke) => {
+        //Если в пришедших есть дубликат шутки - добавляем свойство Liked
         const repeatedJoke = this.jokeComparison(likedJokes, joke);
         if (repeatedJoke) this.$set(joke, "liked", true);
       });
     },
 
     async getJokes() {
-      await getJokes().then((result) => {
-        this.jokesList = result.jokes;
-        this.getLikedJokes();
-      });
+      const result = await getJokes();
+      this.jokesList = result.jokes;
     },
   },
 
-  mounted() {
+  async mounted() {
+    await this.getJokes();
+    this.getLikedJokes();
     window.addEventListener("beforeunload", this.saveLikedJokes);
-    this.getJokes();
   },
 };
 </script>
